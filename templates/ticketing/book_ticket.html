@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Ticket - {{ match.home_team }} vs {{ match.away_team }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Book Ticket</h2>
+        <div class="card mb-4">
+            <div class="card-body">
+                <h4>{{ match.home_team }} vs {{ match.away_team }}</h4>
+                <p class="card-text">
+                    <i class="fas fa-calendar"></i> {{ match.date_time|date:"F d, Y - H:i" }}<br>
+                    <i class="fas fa-map-marker-alt"></i> {{ match.venue }}
+                </p>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Ticket Category</label>
+                {{ form.category }}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.quantity.id_for_label }}" class="form-label">Quantity</label>
+                {{ form.quantity }}
+            </div>
+            <button type="submit" class="btn btn-primary">Book Ticket</button>
+            <a href="{% url 'fixtures' %}" class="btn btn-secondary">Back to Fixtures</a>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h5>Ticket Categories</h5>
+        {% for category in categories %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h6 class="card-title">{{ category.name }}</h6>
+                    <p class="card-text">SLE {{ category.price }}</p>
+                    <small class="text-muted">{{ category.description }}</small>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

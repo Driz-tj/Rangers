@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}My Tickets - Bo Rangers FC{% endblock %}
+
+{% block content %}
+<h2>My Tickets</h2>
+
+<div class="row">
+    {% for ticket in tickets %}
+        <div class="col-md-6 mb-4">
+            <div class="card ticket-card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ ticket.match }}</h5>
+                    <p class="card-text">
+                        <strong>Category:</strong> {{ ticket.category.name }}<br>
+                        <strong>Quantity:</strong> {{ ticket.quantity }}<br>
+                        <strong>Total Amount:</strong> SLE {{ ticket.total_amount }}<br>
+                        <strong>Booking Date:</strong> {{ ticket.booking_date|date:"F d, Y - H:i" }}<br>
+                        <strong>Payment Status:</strong> 
+                        {% if ticket.is_paid %}
+                            <span class="badge bg-success">Paid</span>
+                        {% else %}
+                            <span class="badge bg-warning">Pending</span>
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-primary btn-sm">View Details</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> You haven't booked any tickets yet. 
+                <a href="{% url 'fixtures' %}" class="alert-link">View upcoming matches</a>.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

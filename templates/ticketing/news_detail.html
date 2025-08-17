@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ news_item.title }} - Bo Rangers FC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'news_list' %}">News</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ news_item.title|truncatewords:3 }}</li>
+            </ol>
+        </nav>
+
+        <article class="mb-4">
+            <h1>{{ news_item.title }}</h1>
+            
+            <div class="mb-3">
+                <small class="text-muted">
+                    <i class="fas fa-calendar"></i> {{ news_item.publish_date|date:"F d, Y - H:i" }} |
+                    <i class="fas fa-user"></i> {{ news_item.author.get_full_name|default:news_item.author.username }} |
+                    <span class="badge bg-secondary">{{ news_item.get_category_display }}</span>
+                </small>
+            </div>
+
+            {% if news_item.image %}
+                <div class="mb-4">
+                    <img src="{{ news_item.image.url }}" class="img-fluid rounded" alt="{{ news_item.title }}">
+                </div>
+            {% endif %}
+
+            <div class="content">
+                {{ news_item.content|linebreaks }}
+            </div>
+        </article>
+
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'news_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to News
+            </a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Sidebar content could go here -->
+        <div class="card">
+            <div class="card-header">
+                <h5>Latest News</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Stay updated with the latest Bo Rangers FC news and match reports.</p>
+                <a href="{% url 'news_list' %}" class="btn btn-outline-primary btn-sm">View All News</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: bo-rangers-fc
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn borangersfc.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: False
+      - key: SECRET_KEY
+        generateValue: true
+      - key: RENDER
+        value: "1"

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Fixtures - Bo Rangers FC{% endblock %}
+
+{% block content %}
+<h2>Match Fixtures</h2>
+
+<div class="row">
+    {% for match in matches %}
+        <div class="col-md-6 mb-4">
+            <div class="card match-card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ match.home_team }} vs {{ match.away_team }}</h5>
+                    <p class="card-text">
+                        <i class="fas fa-calendar"></i> {{ match.date_time|date:"F d, Y - H:i" }}<br>
+                        <i class="fas fa-map-marker-alt"></i> {{ match.venue }}<br>
+                        <span class="badge bg-{{ match.status|yesno:"success,warning,secondary" }}">{{ match.get_status_display }}</span>
+                    </p>
+                    {% if match.status == 'completed' %}
+                        <p><strong>Final Score:</strong> {{ match.home_score }} - {{ match.away_score }}</p>
+                    {% endif %}
+                    
+                    {% if match.status == 'upcoming' and user.is_authenticated %}
+                        <a href="{% url 'book_ticket' match.id %}" class="btn btn-primary">Book Ticket</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> No fixtures scheduled at this time.
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if matches.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if matches.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ matches.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+
+            {% for num in matches.paginator.page_range %}
+                {% if matches.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > matches.number|add:'-3' and num < matches.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if matches.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ matches.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ matches.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

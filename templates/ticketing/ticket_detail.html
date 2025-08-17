@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket Details - Bo Rangers FC{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'my_tickets' %}">My Tickets</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Ticket Details</li>
+            </ol>
+        </nav>
+
+        <div class="card ticket-card">
+            <div class="card-header">
+                <h4>Ticket Details</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>{{ ticket.match }}</h5>
+                        <p class="mb-3">
+                            <i class="fas fa-calendar"></i> {{ ticket.match.date_time|date:"F d, Y - H:i" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> {{ ticket.match.venue }}
+                        </p>
+                        
+                        <dl class="row">
+                            <dt class="col-sm-4">Category:</dt>
+                            <dd class="col-sm-8">{{ ticket.category.name }}</dd>
+                            
+                            <dt class="col-sm-4">Quantity:</dt>
+                            <dd class="col-sm-8">{{ ticket.quantity }}</dd>
+                            
+                            <dt class="col-sm-4">Total Amount:</dt>
+                            <dd class="col-sm-8">SLE {{ ticket.total_amount }}</dd>
+                            
+                            <dt class="col-sm-4">Booking Date:</dt>
+                            <dd class="col-sm-8">{{ ticket.booking_date|date:"F d, Y - H:i" }}</dd>
+                            
+                            <dt class="col-sm-4">Payment Status:</dt>
+                            <dd class="col-sm-8">
+                                {% if ticket.is_paid %}
+                                    <span class="badge bg-success">Paid</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pending Payment</span>
+                                {% endif %}
+                            </dd>
+                            
+                            {% if ticket.payment_method %}
+                                <dt class="col-sm-4">Payment Method:</dt>
+                                <dd class="col-sm-8">{{ ticket.payment_method }}</dd>
+                            {% endif %}
+                        </dl>
+                        
+                        {% if not ticket.is_paid %}
+                            <div class="alert alert-warning" role="alert">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                Please complete payment to activate your ticket.
+                            </div>
+                            <button class="btn btn-success" onclick="processPayment()">Pay Now</button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-4 text-center">
+                        {% if ticket.qr_code %}
+                            <h6>QR Code</h6>
+                            <img src="{{ ticket.qr_code.url }}" class="qr-code img-fluid" alt="Ticket QR Code">
+                            <p class="small text-muted mt-2">Show this QR code at the stadium entrance</p>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> 
+                                QR code will be generated after payment confirmation.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'my_tickets' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to My Tickets
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function processPayment() {
+    // Mock payment processing
+    const paymentMethods = ['Orange Money', 'Africell Money'];
+    const selectedMethod = paymentMethods[Math.floor(Math.random() * paymentMethods.length)];
+    
+    if (confirm(`Process payment of SLE {{ ticket.total_amount }} via ${selectedMethod}?`)) {
+        fetch('{% url "process_payment" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                ticket_id: {{ ticket.id }},
+                payment_method: selectedMethod
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Payment successful!');
+                location.reload();
+            } else {
+                alert('Payment failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Payment error: ' + error);
+        });
+    }
+}
+</script>
+{% endblock %}
